@@ -32,6 +32,35 @@ L.control.layers(baseMaps).addTo(map);
 // Accessing the earthquake GeoJSON URL
 let earthquakeData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
+// style
+let myStyle = {
+    color: '#ffffa1',
+    weight: 2
+}
+
+// This function returns the style data for each of the earthquake we plot
+// on the map. We pass the magnitutde of the earthquake into a function
+// to calculate the radius.
+function styleInfo(feature) {
+    return {
+        opacity:1,
+        fillOpacity: 1,
+        fillColor: '#ffae42',
+        color: '#000000',
+        radius: getRadius(),
+        stroke: true,
+        weight: 0.5
+    };
+}
+
+function getRadius(magnitude) {
+    if (magnitude === 0) {
+        return 1;
+    }
+    return magnitude * 4;
+}
+
+
 //  Grabbing our GeoJSON data.
 d3.json(earthquakeData).then(function(data) {
     // console.log(data)
@@ -41,8 +70,9 @@ d3.json(earthquakeData).then(function(data) {
         
         pointToLayer: function(feature, latlng) {
             console.log(data);
-        return L.circleMarker(latlng);
-        },
+            return L.circleMarker(latlng);
+            },
+        style: styleInfo
     }).addTo(map);
 });
 
