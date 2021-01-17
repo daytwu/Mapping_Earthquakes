@@ -17,32 +17,62 @@ let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/sate
 // Create a base layer that holds both maps.
 let baseMaps = {
     "Streets": streets,
-    "Satellite Streets": satelliteStreets
+    "Satellite": satelliteStreets
 };
 
 // Create the map object with center, zoom level and default layer.
 let map = L.map('mapid', {
-    center: [43.7, -79.3],
-    zoom: 11,
+    center: [39.5, -98.5],
+    zoom: 3,
     layers: [streets]
 });
 
 L.control.layers(baseMaps).addTo(map);
 
-// Accessing the airport GeoJSON URL
-let torontoHoods = "https://raw.githubusercontent.com/daytwu/Mapping_Earthquakes/Mapping_GeoJSON_Polygons/Mapping_GeoJSON_Polygons/static/js/torontoNeighborhoods.json";
+// Accessing the earthquake GeoJSON URL
+let earthquakeData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+
+// style
+let myStyle = {
+    color: '#ffffa1',
+    weight: 2
+}
+
+// This function returns the style data for each of the earthquake we plot
+// on the map. We pass the magnitutde of the earthquake into a function
+// to calculate the radius.
+function styleInfo(feature) {
+    return {
+        opacity:1,
+        fillOpacity: 1,
+        fillColor: '#ffae42',
+        color: '#000000',
+        radius: getRadius(),
+        stroke: true,
+        weight: 0.5
+    };
+}
+
+function getRadius(magnitude) {
+    if (magnitude === 0) {
+        return 1;
+    }
+    return magnitude * 4;
+}
+
 
 //  Grabbing our GeoJSON data.
-d3.json(torontoHoods).then(function(data) {
-    console.log(data);
+d3.json(earthquakeData).then(function(data) {
+    // console.log(data)
 
     // Creating a GeoJSON layer with the retrieved data.
     L.geoJSON(data, {
-       fillColor: 'yellow',
-       weight: 1,
-       onEachFeature: function(feature, layer) {
-           layer.bindPopup()
-       }
+        
+        pointToLayer: function(feature, latlng) {
+            console.log(data);
+            return L.circleMarker(latlng);
+            },
+        style: styleInfo
     }).addTo(map);
 });
 
